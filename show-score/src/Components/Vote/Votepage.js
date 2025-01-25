@@ -1,18 +1,26 @@
-import React, { useEffect, useState } from 'react'
-import { Card, CardContent, Container, Grid, Typography, Button, Box } from '@mui/material'
-import CardTop from './CardTop'
-import { AnimatePresence, motion } from 'framer-motion'
-import CardRange from './CardRange'
-import ReconnectingEventSource from 'reconnecting-eventsource'
-import config from '../../config'
-import backend from '../../Services/backend'
-import Wave from '../FooterWave/Wave'
-import xlsx from 'json-as-xlsx'
-import Crab from '../Crab/Crab'
-import Crab_small from '../Crab/Crab_small'
-import AdjustableValue from './Top_n'
-import logobarcamp1 from "./logobarcamp1.png"
-import logobarcamp2 from "./logobarcamp2.png"
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  Typography,
+  Button,
+  Box,
+} from "@mui/material";
+import CardTop from "./CardTop";
+import { AnimatePresence, motion } from "framer-motion";
+import CardRange from "./CardRange";
+import ReconnectingEventSource from "reconnecting-eventsource";
+import config from "../../config";
+import backend from "../../Services/backend";
+import Wave from "../FooterWave/Wave";
+import xlsx from "json-as-xlsx";
+import Crab from "../Crab/Crab";
+import Crab_small from "../Crab/Crab_small";
+import AdjustableValue from "./Top_n";
+import logobarcamp1 from "./logobarcamp1.png";
+import logobarcamp2 from "./logobarcamp2.png";
 
 function Votepage() {
   const [value, setValue] = useState(10);
@@ -24,50 +32,45 @@ function Votepage() {
   const decrementValue = () => {
     setValue(value - 1);
   };
-  const [allTopics, setAllTopics] = useState([])
+  const [allTopics, setAllTopics] = useState([]);
 
   useEffect(() => {
-    backend.get('/topics_admin').then(res => {
-      setAllTopics(res.data.topics_to_send)
-    })
-  }, [])
-
+    backend.get("/topics_admin").then((res) => {
+      setAllTopics(res.data.topics_to_send);
+    });
+  }, []);
 
   useEffect(() => {
-
-    const es = new ReconnectingEventSource(config.apiUrlPrefix + '/sse');
+    const es = new ReconnectingEventSource(config.apiUrlPrefix + "/sse");
 
     es.onmessage = async (event) => {
+      let res = await JSON.parse(event.data);
 
-      let res = await JSON.parse(event.data)
+      if (res.event === "vote") {
+        setAllTopics((pre) =>
+          pre.map((e) => {
+            if (e._id === res.id) {
+              e.votes = res.votes;
+            }
 
-      if (res.event === 'vote') {
-
-        setAllTopics(pre => pre.map(e => {
-          if (e._id === res.id) {
-            e.votes = res.votes
-          }
-
-          return e
-        }))
-
+            return e;
+          })
+        );
       }
+    };
 
-    }
-
-    return () => es.close()
-
-  }, [allTopics])
+    return () => es.close();
+  }, [allTopics]);
 
   const Summary = () => {
-    let all = allTopics.sort((a, b) => b.votes - a.votes)
-    let top10 = all.slice(0, 10)
-    let long_duration_top_10 = top10.filter(e => e.long_duration)
-    let short_duration_top_10 = top10.filter(e => !e.long_duration)
-    let basic_topics = all.filter(e => e.category === "Basic")
-    let intermediate_topics = all.filter(e => e.category === "Intermediate")
-    let advance_topics = all.filter(e => e.category === "Advance")
-    let other = all.slice(10, all.length)
+    let all = allTopics.sort((a, b) => b.votes - a.votes);
+    let top10 = all.slice(0, 10);
+    let long_duration_top_10 = top10.filter((e) => e.long_duration);
+    let short_duration_top_10 = top10.filter((e) => !e.long_duration);
+    let basic_topics = all.filter((e) => e.category === "Basic");
+    let intermediate_topics = all.filter((e) => e.category === "Intermediate");
+    let advance_topics = all.filter((e) => e.category === "Advance");
+    let other = all.slice(10, all.length);
     let obj = [
       {
         sheet: "Top10 1Hr",
@@ -75,9 +78,9 @@ function Votepage() {
           { label: "title", value: (row) => row.title },
           { label: "speaker", value: (row) => row.speaker },
           { label: "votes", value: (row) => row.votes },
-          { label: "category", value: (row) => row.category }
+          { label: "category", value: (row) => row.category },
         ],
-        content: long_duration_top_10
+        content: long_duration_top_10,
       },
       {
         sheet: "Top10 30min",
@@ -85,118 +88,172 @@ function Votepage() {
           { label: "title", value: (row) => row.title },
           { label: "speaker", value: (row) => row.speaker },
           { label: "votes", value: (row) => row.votes },
-          { label: "category", value: (row) => row.category }
+          { label: "category", value: (row) => row.category },
         ],
-        content: short_duration_top_10
+        content: short_duration_top_10,
       },
       {
         sheet: "Other",
         columns: [
           { label: "title", value: (row) => row.title },
           { label: "speaker", value: (row) => row.speaker },
-          { label: "duration", value: (row) => (row.long_duration ? '1 Hour' : '30 Minute') },
+          {
+            label: "duration",
+            value: (row) => (row.long_duration ? "1 Hour" : "30 Minute"),
+          },
           { label: "votes", value: (row) => row.votes },
-          { label: "category", value: (row) => row.category }
+          { label: "category", value: (row) => row.category },
         ],
-        content: other
+        content: other,
       },
       {
         sheet: "Basic",
         columns: [
           { label: "title", value: (row) => row.title },
           { label: "speaker", value: (row) => row.speaker },
-          { label: "duration", value: (row) => (row.long_duration ? '1 Hour' : '30 Minute') },
+          {
+            label: "duration",
+            value: (row) => (row.long_duration ? "1 Hour" : "30 Minute"),
+          },
           { label: "votes", value: (row) => row.votes },
-          { label: "category", value: (row) => row.category }
+          { label: "category", value: (row) => row.category },
         ],
-        content: basic_topics
+        content: basic_topics,
       },
       {
         sheet: "Intermediate",
         columns: [
           { label: "title", value: (row) => row.title },
           { label: "speaker", value: (row) => row.speaker },
-          { label: "duration", value: (row) => (row.long_duration ? '1 Hour' : '30 Minute') },
+          {
+            label: "duration",
+            value: (row) => (row.long_duration ? "1 Hour" : "30 Minute"),
+          },
           { label: "votes", value: (row) => row.votes },
-          { label: "category", value: (row) => row.category }
+          { label: "category", value: (row) => row.category },
         ],
-        content: intermediate_topics
+        content: intermediate_topics,
       },
       {
         sheet: "Advance",
         columns: [
           { label: "title", value: (row) => row.title },
           { label: "speaker", value: (row) => row.speaker },
-          { label: "duration", value: (row) => (row.long_duration ? '1 Hour' : '30 Minute') },
+          {
+            label: "duration",
+            value: (row) => (row.long_duration ? "1 Hour" : "30 Minute"),
+          },
           { label: "votes", value: (row) => row.votes },
-          { label: "category", value: (row) => row.category }
+          { label: "category", value: (row) => row.category },
         ],
-        content: advance_topics
+        content: advance_topics,
       },
       {
         sheet: "All Topices",
         columns: [
           { label: "title", value: (row) => row.title },
           { label: "speaker", value: (row) => row.speaker },
-          { label: "duration", value: (row) => (row.long_duration ? '1 Hour' : '30 Minute') },
+          {
+            label: "duration",
+            value: (row) => (row.long_duration ? "1 Hour" : "30 Minute"),
+          },
           { label: "votes", value: (row) => row.votes },
-          { label: "category", value: (row) => row.category }
+          { label: "category", value: (row) => row.category },
         ],
-        content: all
+        content: all,
       },
-    ]
+    ];
 
     let setting = {
-      fileName: 'SummaryVote',
+      fileName: "SummaryVote",
       extraLength: 3,
       writeMode: "writeFile",
       writeOptions: {},
-      RTL: false
-    }
+      RTL: false,
+    };
 
-    xlsx(obj, setting)
-
-
-  }
+    xlsx(obj, setting);
+  };
 
   return (
-    <div style={{ background: 'linear-gradient(180deg, rgba(225,149,0,1) 0%, rgba(231,0,0,1) 100%)'}}>
-      <Container maxWidth="90%" sx={{ pt: '2rem', pb: '4rem' }}>
-        <Grid container columns={10} spacing={2} sx={{ height: 'auto', }}>
+    <div
+      style={{
+        background:
+          "linear-gradient(180deg, #ddf3ff 0%, #ddf3ff 50%, #ddf3ff 100%)",
+        width: "100%",
+        height: "100vh",
+      }}
+    >
+      <Container maxWidth="90%" sx={{ pt: "2rem", pb: "4rem", height: "100%" }}>
+        <Grid container columns={10} spacing={2} sx={{ height: "100%" }}>
           <Grid item xl={4}>
-            <Card elevation={5} sx={{
-              height: '100%',
-              borderRadius: '1rem',
-              position: 'relative',
-              background: '#fff',
-            }}>
-              <CardContent sx={{ height: '100%' }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <Typography sx={{ textAlign: "center" }} marginLeft='auto' marginRight='23%' fontWeight='bold' color='#FF0000' variant='h3'>TOP {value}</Typography>
-                  <AdjustableValue value={value} onIncrement={incrementValue} onDecrement={decrementValue} />
+            <Card
+              elevation={5}
+              sx={{
+                height: "100%",
+                borderRadius: "1rem",
+                position: "relative",
+                background: "#fff",
+              }}
+            >
+              <CardContent sx={{ height: "100%" }}>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <Typography
+                    sx={{
+                      textAlign: "center",
+                      fontWeight: "bold",
+                      color: "#574964",
+                      padding: "16px",
+                      textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
+                      // letterSpacing: "1px"
+                    }}
+                    marginLeft="auto"
+                    marginRight="23%"
+                    fontWeight="bold"
+                    color="#441752"
+                    variant="h3"
+                  >
+                    TOP {value}
+                  </Typography>
+                  <AdjustableValue
+                    value={value}
+                    onIncrement={incrementValue}
+                    onDecrement={decrementValue}
+                  />
                 </div>
                 <Grid
-                  sx={{ height: '100%', mt: '1rem' }}
+                  sx={{ height: "100%", mt: "1rem" }}
                   container
                   columns={12}
                   spacing={2}
-                  justifyContent='flex-start'
-                  alignContent='start'
+                  justifyContent="flex-start"
+                  alignContent="start"
                 >
                   <AnimatePresence>
-                    {allTopics.sort((a, b) => b.votes - a.votes).filter(e => e.votes >= 1).slice(0, value).map((e, i) =>
-                      <Grid item xl={6} key={e._id}>
-                        <motion.div
-                          key={e._id}
-                          layout
-                          initial={{ translateY: 500 }}
-                          animate={{ translateY: 0 }}
-                          exit={{ translateY: 1000, opacity: 0, scale: 0 }}
-                          transition={{ delay: 0.1 * i }}
-                        >
-                          <CardTop index={i} data={e} />
-                        </motion.div>
-                      </Grid>)}
+                    {allTopics
+                      .sort((a, b) => b.votes - a.votes)
+                      .filter((e) => e.votes >= 1)
+                      .slice(0, value)
+                      .map((e, i) => (
+                        <Grid item xl={6} key={e._id}>
+                          <motion.div
+                            key={e._id}
+                            layout
+                            initial={{ translateY: 500 }}
+                            animate={{ translateY: 0 }}
+                            exit={{ translateY: 1000, opacity: 0, scale: 0 }}
+                            transition={{ delay: 0.1 * i }}
+                          >
+                            <CardTop
+                              index={i}
+                              data={e}
+                              {...(value > 10 && {
+                                isLongList: true,
+                              })}
+                            />
+                          </motion.div>
+                        </Grid>
+                      ))}
                   </AnimatePresence>
                 </Grid>
               </CardContent>
@@ -257,46 +314,89 @@ function Votepage() {
             </Card>
           </Grid>
           <Grid item xl={6}>
-            <Card elevation={5} sx={{ height: '100%', borderRadius: '1rem' }}>
-              <CardContent sx={{ height: '100%', backgroundImage: `url(${logobarcamp2})`, backgroundSize: '80%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'}}>
-                <Typography sx={{ textAlign: "center" }} fontWeight='bold' color='#FF0000' variant='h3'>Topics</Typography>
-                <Grid sx={{ height: '100%', mt: '2rem' }}
+            <Card
+              elevation={5}
+              sx={{
+                height: "100%",
+                backgroundImage: `url(${logobarcamp2})`,
+                backgroundSize: "50%",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }}
+            >
+              <CardContent
+                sx={{
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  color: "#441752",
+                  padding: "16px",
+                  textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
+                  // letterSpacing: "1px"
+                }}
+              >
+                <Typography
+                  sx={{ textAlign: "center" }}
+                  fontWeight="bold"
+                  color="#441752"
+                  variant="h3"
+                >
+                  Topics
+                </Typography>
+                <Grid
+                  sx={{ height: "100%", mt: "2rem" }}
                   container
                   columns={12}
                   spacing={1}
-                  align-self= 'start'
-                  alignContent="start">
+                  align-self="start"
+                  alignContent="start"
+                >
                   <AnimatePresence>
-                    {allTopics.sort((a, b) => b.votes - a.votes).filter(e => e.votes >= 1).slice(value, allTopics.length).map((e, i) =>
-                      <Grid key={e._id} item xl={4} sx={{ zIndex: value, position: 'relative' }}>
-                        <motion.div
+                    {allTopics
+                      .sort((a, b) => b.votes - a.votes)
+                      .filter((e) => e.votes >= 1)
+                      .slice(value, allTopics.length)
+                      .map((e, i) => (
+                        <Grid
                           key={e._id}
-                          layout
-                          initial={{ translateY: 500 }}
-                          animate={{ translateY: 0 }}
-                          exit={{ scale: 0, opacity: 0 }}
+                          item
+                          xl={4}
+                          sx={{ zIndex: value, position: "relative" }}
                         >
-                          <CardRange data={e} />
-                        </motion.div>
-                      </Grid>
-                    )}
+                          <motion.div
+                            key={e._id}
+                            layout
+                            initial={{ translateY: 500 }}
+                            animate={{ translateY: 0 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                          >
+                            <CardRange data={e} />
+                          </motion.div>
+                        </Grid>
+                      ))}
                   </AnimatePresence>
                 </Grid>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
-        {/* <Wave /> */}
-        <Button sx={{
-          left: "92%",
-          top: "28px",
-          bottom: 0,
-          fontSize: '18px'
-        }} variant='outlined' color="primary" backgroundColor="white" onClick={Summary}>Summary
+
+        <Button
+          sx={{
+            left: "92%",
+            top: "28px",
+            bottom: 0,
+            fontSize: "18px",
+          }}
+          variant="outlined"
+          color="primary"
+          backgroundColor="white"
+          onClick={Summary}
+        >
+          Summary
         </Button>
       </Container>
     </div>
-  )
+  );
 }
 
-export default Votepage
+export default Votepage;

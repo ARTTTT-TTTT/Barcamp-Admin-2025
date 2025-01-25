@@ -11,7 +11,7 @@ function CardRange({ data }) {
             }}>
                 <Typography fontWeight='bold' noWrap textOverflow='ellipsis' sx={{ width: '18rem' }} variant='h6'>{data.title}</Typography>
                 <Typography sx={{
-                    backgroundColor: '#FF9847',
+                    backgroundColor: '#FEEE91',
                     borderRadius: '100%',
                     width: '0.05rem',
                     height: '0.05rem',
