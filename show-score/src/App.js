@@ -85,7 +85,7 @@ function App() {
 
 
   return (
-    <div style={{ background: 'linear-gradient(180deg, rgba(225,149,0,1) 0%, rgba(231,0,0,1) 100%)' }}>
+    <div style={{ background: "#ddf3ff"  }}>
       <Container maxWidth="xl" sx={{ pb: '6rem' }} >
         <Box sx={{
           display: 'grid',

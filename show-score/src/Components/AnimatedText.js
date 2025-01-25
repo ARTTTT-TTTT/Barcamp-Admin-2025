@@ -59,7 +59,10 @@ const AnimatedCharacters = (props) => {
                                 <span
                                     style={{
                                         overflow: "hidden",
-                                        display: "inline-block"
+                                        display: "inline-block",
+                                        color: "#441752"
+
+
                                     }}
                                     key={index}
                                 >

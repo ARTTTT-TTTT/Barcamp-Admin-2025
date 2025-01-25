@@ -178,8 +178,8 @@ function Votepage() {
   return (
     <div
       style={{
-        background:
-          "linear-gradient(180deg, #ddf3ff 0%, #ddf3ff 50%, #ddf3ff 100%)",
+        background: "#ddf3ff",
+          // "linear-gradient(180deg, #ddf3ff 0%, #ddf3ff 50%, #ddf3ff 100%)",
         width: "100%",
         height: "100vh",
       }}

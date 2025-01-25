@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 
 function CardTopic({ Topic, index }) {
     return (
-        <Card sx={{ borderRadius: '1rem', height: '100%', backgroundColor: `rgba(255 , 150 , 55 , ${4 / (index + 1)})` }} elevation={5}>
+        <Card sx={{ borderRadius: '1rem', height: '100%', backgroundColor: `rgba(254, 238, 145, ${4 / (index + 1)})` }} elevation={5}>
             <CardContent sx={{
                 display: 'flex',
                 alignItems: 'center',
