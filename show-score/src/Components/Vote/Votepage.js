@@ -179,7 +179,7 @@ function Votepage() {
 				height: "100vh",
 			}}
 		>
-			<Container maxWidth="90%" sx={{ pt: "2rem", pb: "4rem", height: "100%" }}>
+			<Container maxWidth="90%" sx={{ pt: "2rem", pb: "2rem", height: "100%" }}>
 				<Grid container columns={10} spacing={2} sx={{ height: "100%" }}>
 					<Grid item xl={4}>
 						<Card
