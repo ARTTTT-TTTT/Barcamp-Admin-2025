@@ -34,10 +34,14 @@ function Votepage() {
   const [allTopics, setAllTopics] = useState([]);
 
   useEffect(() => {
-    backend.get("/topics_admin").then((res) => {
-      setAllTopics(res.data.topics_to_send);
-    });
-  }, []);
+    const interval = setInterval(() => {
+      backend.get('/topics_admin').then(res => {
+        setAllTopics(res.data.topics_to_send);
+      });
+    }, 500);
+  
+    return () => clearInterval(interval);
+  }, [])
 
   useEffect(() => {
     const es = new ReconnectingEventSource(config.apiUrlPrefix + "/sse");
