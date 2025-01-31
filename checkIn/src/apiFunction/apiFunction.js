@@ -76,7 +76,7 @@ const get_all_pending = async () => {
 };
 
 const add_topic = async (data) => {
-    try {p
+    try {
         let res = await fetch(`${config.apidatabaseVotePrefix}/add_topic`, {
             method: "POST",
             headers: {
